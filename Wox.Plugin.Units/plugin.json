@@ -1,0 +1,12 @@
+{
+  "ID":"0AD83370FF4F4F17BEB230F4D59C8497",
+  "ActionKeyword":"*",                  
+  "Name":"Units",                           
+  "Description":"Wox Plugin for unit conversion", 
+  "Author":"djbobyd",                  
+  "Version":"1.0.0",                      
+  "Language":"csharp",                    
+  "Website":"http://www.getwox.com",      
+  "IcoPath": "Images\\Unit.png",           
+  "ExecuteFileName":"Wox.Plugin.Units.dll"
+}
