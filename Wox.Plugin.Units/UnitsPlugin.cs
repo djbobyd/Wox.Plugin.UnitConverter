@@ -44,7 +44,7 @@ namespace Wox.Plugin.Units
                     {
                         Title = "Converting: " + _quantity + " " + _fromUnit + " to " + _result + " " + _toUnit,
                         SubTitle = "",
-                        IcoPath = "Images/plugin.png",  //relative path to your plugin directory
+                        IcoPath = "Images/convert.png",  //relative path to your plugin directory
                         Action = e =>
                         {
                         // after user select the item
