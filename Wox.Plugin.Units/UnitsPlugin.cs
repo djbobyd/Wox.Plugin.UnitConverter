@@ -30,8 +30,8 @@ namespace Wox.Plugin.Units
         public void Init(PluginInitContext context)
         {
             _context = context;
-            Type[] _valueTypes=GetQuantityTypes(GetTypesInNamespace(UnitsNetAssembly,QuantityNamespace));
-            Type[] _unitTypes=GetUnitTypes(GetTypesInNamespace(UnitsNetAssembly,UnitTypeNamespace));
+            _valueTypes=GetQuantityTypes(GetTypesInNamespace(UnitsNetAssembly,QuantityNamespace));
+            _unitTypes=GetUnitTypes(GetTypesInNamespace(UnitsNetAssembly,UnitTypeNamespace));
         }
         public List<Result> Query(Query query) {
             List<Result> results = new List<Result>();
