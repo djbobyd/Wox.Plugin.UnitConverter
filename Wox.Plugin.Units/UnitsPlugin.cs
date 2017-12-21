@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using UnitsNet;
+using UnitsNet.Units;
 
 namespace Wox.Plugin.Units
 {
@@ -14,18 +15,23 @@ namespace Wox.Plugin.Units
         private readonly string checkPattern = @"(\d+(\.\d{1,2})?)?\s([A-Za-z]*)\s([i][n])\s([A-Za-z]*)"; // 10 meter in centimeter
         private string _toUnit = "";
         private string _fromUnit = "";
-        private double _quantity = new double();
-        private double _result = new double();
+        private double _quantity;
+        private double _result;
+        private Type[] _valueTypes;
+        private Type[] _unitTypes;
         private static readonly Assembly UnitsNetAssembly = Assembly.GetAssembly(typeof(Length));
+        private static readonly string QuantityNamespace = typeof(Length).Namespace;
+        private static readonly string UnitTypeNamespace = typeof(LengthUnit).Namespace;
         #endregion
 
         public UnitsPlugin()
         {
-
         }
         public void Init(PluginInitContext context)
         {
             _context = context;
+            Type[] _valueTypes=GetQuantityTypes(GetTypesInNamespace(UnitsNetAssembly,QuantityNamespace));
+            Type[] _unitTypes=GetUnitTypes(GetTypesInNamespace(UnitsNetAssembly,UnitTypeNamespace));
         }
         public List<Result> Query(Query query) {
             List<Result> results = new List<Result>();
@@ -45,13 +51,7 @@ namespace Wox.Plugin.Units
                         Title = "Converting: " + _quantity + " " + _fromUnit + " to " + _result + " " + _toUnit,
                         SubTitle = "",
                         IcoPath = "Images/convert.png",  //relative path to your plugin directory
-                        Action = e =>
-                        {
-                        // after user select the item
-
-                        // return false to tell Wox don't hide query window, otherwise Wox will hide it automatically
-                        return false;
-                        }
+                        Action = e => false
                     });
                 }
             return results;
@@ -64,18 +64,17 @@ namespace Wox.Plugin.Units
 
         private double Calculate(string fromUnit, string toUnit, double quantity)
         {
-            double result = 0.0;
-            bool isMatch = false;
-            Type[] tp = GetTypesInNamespace(UnitsNetAssembly, "UnitsNet");
+            var result = 0.0;
+            var isMatch = false;
 
-            foreach (Type t in tp)
+            foreach (Type t in _valueTypes)
             {
-                isMatch = UnitConverter.TryConvertByAbbreviation(quantity, t.Name.ToString(), fromUnit, toUnit, out result);
+                isMatch = UnitConverter.TryConvertByAbbreviation(quantity, t.Name, fromUnit, toUnit, out result);
                 if (isMatch)
                 {
                     break;
                 }
-                isMatch = UnitConverter.TryConvertByName(quantity, t.Name.ToString(), fromUnit, toUnit, out result);
+                isMatch = UnitConverter.TryConvertByName(quantity, t.Name, fromUnit, toUnit, out result);
                 if (isMatch)
                 {
                     break;
@@ -86,6 +85,15 @@ namespace Wox.Plugin.Units
         private static Type[] GetTypesInNamespace(Assembly assembly, string nameSpace)
         {
             return assembly.GetTypes().Where(t => String.Equals(t.Namespace, nameSpace, StringComparison.Ordinal)).ToArray();
+        }
+        private static Type[] GetQuantityTypes(Type[] tp)
+        {
+            return tp.Where(t => t.IsValueType).ToArray();
+        }
+
+        private static Type[] GetUnitTypes(Type [] utp)
+        {
+            return utp.Where(t => t.IsEnum).ToArray();
         }
     }
 }
