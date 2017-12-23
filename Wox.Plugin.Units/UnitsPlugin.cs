@@ -62,6 +62,7 @@ namespace Wox.Plugin.Units
                     if (units == null) return results;
                     foreach (object unit in units)
                     {
+                        if (unit.ToString().Equals("Undefined")) continue;
                         results.Add(new Result
                         {
                             Title = unit.ToString(),
@@ -129,7 +130,9 @@ namespace Wox.Plugin.Units
         }
         private static Type[] GetQuantityTypes(Type[] tp)
         {
-            return tp.Where(t => t.IsValueType).ToArray();
+            return tp.Where(t => t.BaseType.Name.Equals("ValueType") && !t.Name.Equals("Vector2") &&
+                                 !t.Name.Equals("Vector3") &&
+                                 !t.Name.Equals("QuantityValue") && !t.Name.Equals("Length2d")).ToArray();
         }
 
         private static Type[] GetUnitTypes(Type [] utp)
