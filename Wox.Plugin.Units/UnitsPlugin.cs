@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -13,6 +14,8 @@ namespace Wox.Plugin.Units
         #region private fields
         private PluginInitContext _context;
         private readonly string checkPattern = @"(\d+(\.\d{1,2})?)?\s([A-Za-z]*)\s([i][n])\s([A-Za-z]*)"; // 10 meter in centimeter
+        private readonly string unitPattern = @"([A-Za-z]*)\s([u][n][i][t][s])"; // Length units
+        private readonly string valuePattern = @"([L][i][s][t])\s([v][a][l][u][e][s])"; // List values
         private string _toUnit = "";
         private string _fromUnit = "";
         private double _quantity;
@@ -53,6 +56,32 @@ namespace Wox.Plugin.Units
                         IcoPath = "Images/convert.png",  //relative path to your plugin directory
                         Action = e => false
                     });
+                } else if (Regex.IsMatch(query.Search,unitPattern))
+                {
+                    Array units=listUnits(query.FirstSearch);
+                    if (units == null) return results;
+                    foreach (object unit in units)
+                    {
+                        results.Add(new Result
+                        {
+                            Title = unit.ToString(),
+                            SubTitle = "",
+                            IcoPath = "Images/convert.png",
+                            Action = e => false
+                        });
+                    }
+                } else if (Regex.IsMatch(query.Search, valuePattern))
+                {
+                    foreach (Type t in _valueTypes)
+                    {
+                        results.Add(new Result
+                        {
+                            Title = t.Name,
+                            SubTitle = "",
+                            IcoPath = "Images/convert.png",  //relative path to your plugin directory
+                            Action = e => false
+                        });
+                    }
                 }
             return results;
             }
@@ -60,6 +89,18 @@ namespace Wox.Plugin.Units
             {
                 return new List<Result>();
             }
+        }
+
+        private Array listUnits(string queryFirstSearch)
+        {
+            Array units = null;
+            foreach (Type t in _unitTypes)
+            {
+                if (!t.Name.Equals(queryFirstSearch + "Unit")) continue;
+                units = t.GetEnumValues();
+            }
+
+            return units;
         }
 
         private double Calculate(string fromUnit, string toUnit, double quantity)
